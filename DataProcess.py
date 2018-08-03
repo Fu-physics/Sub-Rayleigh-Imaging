@@ -85,6 +85,29 @@ class DataProcess():
         
         result = np.sum(FirstArray1d*SecondArray1d)/ Frames /(FirstAverage * SecondAverage)
         return result
+    
+    
+    def SpatialCorrelation(self, originPoint):
+        
+        x = originPoint[0]
+        y = originPoint[1]
+        
+        ArrayOrigin = self.image[:, y, x]
+        
+        frame, height, width  = self.image.shape
+        
+        
+        ##  the X direction correlation  
+        xCorrelation = np.zeros(width)
+        for i in range(width):
+            xCorrelation[i] =  self.G2(ArrayOrigin, self.image[:, y, i])
+        
+        ##  the Y direction correlation  
+        yCorrelation = np.zeros(height)
+        for i in range(height):
+            yCorrelation[i] =  self.G2(ArrayOrigin, self.image[:, i, x])
+
+        return xCorrelation, yCorrelation
 
 
     def PlotPhotonDistribution(self):

@@ -204,7 +204,14 @@ class MyTableWidget(QWidget):
         self.buttonPostProcess = QPushButton('Post Process Data')  # Just some button connected to `plot` method
         self.buttonPostProcess.clicked.connect(self.PostProcess)
 
+        self.buttonCoherent = QPushButton('Coherent Plot')  # Just some button connected to `plot` method
+        self.buttonCoherent.clicked.connect(self.CoherentPlot)
+
+
+
         self.tab3_layout_L.addWidget(self.buttonopenfile)
+        self.tab3_layout_L.addWidget(self.buttonCoherent)
+
         self.tab3_layout_L.addWidget(self.buttonPostProcess)
 
 
@@ -541,16 +548,27 @@ class MyTableWidget(QWidget):
 
             # plot the Averge imaging
             ax = fig.add_subplot(111)
+
+            try:
+                self.cbar_FOrder.remove()
+                ax.cla()
+                #print("clear self.cbar !")
+            except:
+                pass
+                #print("fail to clear self.cbar !")
+
+
             im = ax.imshow(self.firstOrdImaging)
             # create an axes on the right side of ax. The width of cax will be 5%
             # of ax and the padding between cax and ax will be fixed at 0.05 inch.
             divider = make_axes_locatable(ax)
             cax = divider.append_axes("right", size="5%", pad=0.05)
-            plt.colorbar(im, cax=cax)
+            self.cbar_FOrder =  plt.colorbar(im, cax=cax)
             #plt.colorbar(im, cax=cax, ticks=[0, 5, 10])
             ax.set_title('1th Order')
 
             plt.savefig('1th Order Imaing.eps', format='eps', dpi=100)
+            plt.close()
         
         return inner_PlotFirstOrdrfun
 
@@ -595,6 +613,8 @@ class MyTableWidget(QWidget):
             ax.set_title('{}th Order'.format(NorderValue))
 
             plt.savefig('2th Order Imaing.eps', format='eps', dpi=100)
+            plt.close()
+                    
         
         return inner_PlotSecondOrdrfun
 
@@ -647,6 +667,13 @@ class MyTableWidget(QWidget):
                 arr.append(rv.pmf(num))
 
             ax = fig.add_subplot(111)
+
+            try:
+                ax.cla()
+                #print("clear self.cbar !")
+            except:
+                pass
+                #print("fail to clear self.cbar !")
             
             ax.hist(Array1 , bins, normed=True, label = "Data distribution") 
             ax.plot(nList, BoseEinstein(self.firstOrdImaging[y_location, x_location], Nmax), label ="BoseEinstein distribution")
@@ -657,11 +684,23 @@ class MyTableWidget(QWidget):
             ax.legend() 
             
             fig.savefig('PixelPosition({},{})PhotDist.eps'.format(x_location , y_location), format='eps', dpi=300)
+            plt.close()
 
         return inner_PlotDistrifun
 
 
+    def CoherentPlot(self):
 
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        xCorr, yCorr = self.APP_dataprocess.SpatialCorrelation([self.ypixel_spinbox.value(), self.xpixel_spinbox.value()])
+        ax.plot(xCorr)
+        ax.set_title("G2 @({}{})".format(self.ypixel_spinbox.value(), self.xpixel_spinbox.value()))
+        fig.savefig("G2 @({}{}).eps".format(self.ypixel_spinbox.value(), self.xpixel_spinbox.value()), format="eps", dpi = 100)
+        plt.show()
+
+        
         
     def PostProcess(self):
         app = DataProcess()   # which read the data only
